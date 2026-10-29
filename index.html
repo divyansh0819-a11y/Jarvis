@@ -90,20 +90,21 @@ const cv=$("#fx"),cx=cv.getContext("2d");let W,H,pts=[];function rs(){W=cv.width
 /* voice */
 let voice=null;function pv(){const v=speechSynthesis.getVoices();voice=v.find(x=>/en-GB/i.test(x.lang)&&/male|daniel|google uk english male/i.test(x.name))||v.find(x=>/en-GB/i.test(x.lang))||v.find(x=>/en-IN/i.test(x.lang))||v[0]||null}
 try{pv();speechSynthesis.onvoiceschanged=pv}catch(e){}
-function say(t){return new Promise(r=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,""));if(voice){u.voice=voice;u.lang=voice.lang}u.rate=1;u.pitch=.85;u.onend=u.onerror=()=>r();st("speak","Speaking");speechSynthesis.speak(u)}catch(e){r()}})}
+function say(t){return new Promise(r=>{let d=0;const f=()=>{if(!d){d=1;r()}};try{speechSynthesis.cancel();speechSynthesis.resume();const u=new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,""));if(voice){u.voice=voice;u.lang=voice.lang}u.rate=1;u.pitch=.85;u.onend=u.onerror=f;st("speak","Speaking");speechSynthesis.speak(u);setTimeout(f,4000+t.length*90)}catch(e){f()}})}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,on=false;
 function listen(){if(!SR){log("er","Voice input is not supported here, sir. Please type.");return}
  rec=new SR();rec.lang="en-IN";rec.interimResults=false;rec.onstart=()=>st("listen","Listening");
  rec.onresult=e=>{const t=e.results[0][0].transcript;handle(t)};
  rec.onerror=e=>{on=false;$("#mic").textContent="TAP TO SPEAK";st("idle","Standing by");if(/not-allowed|service/.test(e.error))log("er","Microphone is blocked in this view, sir. Open the page in Chrome or type instead.")};
  rec.onend=()=>{if(on&&!busy)try{rec.start()}catch(e){}};try{rec.start()}catch(e){}}
-$("#mic").onclick=()=>{if(on){on=false;try{rec.abort();speechSynthesis.cancel()}catch(e){}$("#mic").textContent="TAP TO SPEAK";st("idle","Standing by")}else{on=true;$("#mic").textContent="STOP LISTENING";listen()}};
+$("#mic").onclick=()=>{unlock();if(on){on=false;try{rec.abort();speechSynthesis.cancel()}catch(e){}$("#mic").textContent="TAP TO SPEAK";st("idle","Standing by")}else{on=true;$("#mic").textContent="STOP LISTENING";listen()}};
 /* skills: date/time, apps, whatsapp, contacts, call */
 const APP={whatsapp:["WhatsApp","https://wa.me/"],youtube:["YouTube","https://www.youtube.com"],maps:["Maps","https://maps.google.com"],gmail:["Gmail","https://mail.google.com"],instagram:["Instagram","https://www.instagram.com"],insta:["Instagram","https://www.instagram.com"],spotify:["Spotify","https://open.spotify.com"],telegram:["Telegram","https://web.telegram.org"],chrome:["Google","https://www.google.com"],google:["Google","https://www.google.com"]};
 const card=(label,href)=>{const a=document.createElement("a");a.className="cardl";a.href=href;a.target="_blank";a.rel="noopener";a.textContent="TAP: "+label;$("#log").appendChild(a);$("#log").scrollTop=1e9};
 const num=s=>{let d=String(s).replace(/\D/g,"");if(d.length===10)d="91"+d;return d};
 const nowTxt=()=>{const n=new Date();return n.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+", "+n.toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"})};
 function local(t){const l=t.toLowerCase().trim();let m;
+ if(m=t.trim().match(/^(?:set\s+)?(?:api\s+)?key[\s:]+(\S{20,})$/i)){KEY=m[1];S("gk",KEY);S("gm","");MODEL="";return"Key saved, sir. Say hello."}
  if(/(what('| i)?s |tell me |^)(the )?(date|day)\b|aaj.*(tarikh|date|din)|kaun sa din|today'?s date/.test(l))return"It is "+new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+", sir.";
  if(/\b(time)\b.*(now|is it)|what('| i)?s the time|abhi.*(time|baje)|kitne baje|^time$/.test(l))return"The time is "+new Date().toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"})+", sir.";
  if(m=l.match(/save (?:contact )?([a-z]+)[\s:,-]+(\+?[\d\s-]{10,15})/)){const c=S("c")||{};c[m[1]]=num(m[2]);S("c",c);return"Contact "+m[1]+" saved, sir."}
@@ -116,7 +117,7 @@ function local(t){const l=t.toLowerCase().trim();let m;
 let busy=false,hist=[],KEY=S("gk")||"",MODEL=S("gm")||"";
 async function pickModel(){if(MODEL)return MODEL;const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",{headers:{"x-goog-api-key":KEY}});const j=await r.json();if(!r.ok)throw{status:r.status,message:(j.error&&j.error.message)||"models"};
  const n=(j.models||[]).map(m=>m.name.replace("models/","")).filter(n=>/^gemini-[\d.]+-flash$/.test(n)).sort((x,y)=>parseFloat(y.slice(7))-parseFloat(x.slice(7)));MODEL=n[0]||"gemini-2.0-flash";S("gm",MODEL);return MODEL}
-async function brain(t){if(!KEY){const k=prompt("Paste your free Gemini API key (aistudio.google.com/apikey). It stays on this phone only.");if(!k)throw{message:"No key given"};KEY=k.trim();S("gk",KEY)}
+async function brain(t){if(!KEY)throw{message:"No API key yet, sir. Get a free one at aistudio.google.com/apikey, then type here:  key YOUR_KEY"}
  const sys="You are J.A.R.V.I.S., Tony Stark's calm, witty British AI butler, talking to your owner whom you call sir. Reply in the language the user speaks (Hinglish is fine), in at most 2 short sentences, no markdown. Current real date and time (trust it over your memory and over any search result): "+nowTxt()+" IST. Never guess dates. You cannot open apps or send messages yourself.";
  const msgs=hist.slice(-6).map(h=>({role:h[0]==="User"?"user":"model",parts:[{text:h[1]}]}));msgs.push({role:"user",parts:[{text:t}]});
  const el=log("ai","…");let m;try{m=await pickModel()}catch(e){el.remove();throw e}
@@ -126,7 +127,7 @@ async function brain(t){if(!KEY){const k=prompt("Paste your free Gemini API key 
 async function handle(t){if(busy||!t.trim())return;busy=true;try{rec&&rec.abort()}catch(e){}log("me",t);st("think","Processing");let a=local(t);
  try{if(a===null)a=await brain(t);else log("ai",a);hist.push(["User",t],["Jarvis",a]);await say(a)}catch(e){log("er","My brain link failed: "+((e&&e.message)||e||"unavailable")+".")}
  busy=false;st("idle","Standing by");if(on)listen()}
-$("#send").onclick=()=>{const v=$("#txt").value;$("#txt").value="";handle(v)};$("#txt").onkeydown=e=>{if(e.key==="Enter")$("#send").click()};
+const unlock=()=>{try{speechSynthesis.speak(new SpeechSynthesisUtterance(" "))}catch(e){}};$("#send").onclick=()=>{unlock();const v=$("#txt").value;$("#txt").value="";handle(v)};$("#txt").onkeydown=e=>{if(e.key==="Enter")$("#send").click()};
 /* boot */
 const h=new Date().getHours(),g=h<5?"Good night":h<12?"Good morning":h<17?"Good afternoon":"Good evening";
 setTimeout(()=>{$("#bt").textContent="CORE ONLINE";setTimeout(()=>{$("#boot").style.opacity=0;setTimeout(()=>$("#boot").remove(),800);log("ai",g+", sir. Today is "+new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+". All systems are online.")},600)},1500);
