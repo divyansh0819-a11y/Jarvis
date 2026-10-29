@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>J.A.R.V.I.S. · MARK XLIII</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#010911;--cy:#19e6ff;--cy2:#9ff7ff;--dim:#5f9fb0;--txt:#d6f9ff;--red:#ff3d4d;--amb:#ffb347;--grn:#3cff9a;--glass:rgba(8,46,62,.45);color-scheme:dark;--d:"Orbitron","Bahnschrift",system-ui,sans-serif;--b:"Rajdhani","Segoe UI",system-ui,sans-serif}
+:root[data-theme=light],:root[data-theme=dark]{--bg:#010911}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font:600 15px var(--b);-webkit-tap-highlight-color:transparent;overflow:hidden}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:radial-gradient(90% 50% at 50% 34%,#0b4a5f,#04202c 45%,var(--bg) 80%),var(--bg)}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(0deg,rgba(25,230,255,.04) 0 1px,transparent 1px 3px),radial-gradient(circle,transparent 55%,rgba(0,0,0,.6))}
+#app{position:relative;z-index:2;height:100%;max-width:560px;margin:0 auto;padding:8px 12px;display:flex;flex-direction:column;gap:7px}
+.cn{position:fixed;width:22px;height:22px;border:2px solid var(--cy);z-index:4;opacity:.8}.c1{left:4px;top:4px;border-right:0;border-bottom:0}.c2{right:4px;top:4px;border-left:0;border-bottom:0}.c3{left:4px;bottom:4px;border-right:0;border-top:0}.c4{right:4px;bottom:4px;border-left:0;border-top:0}
+#top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid rgba(25,230,255,.3);padding-bottom:5px}
+#top b{font:800 17px var(--d);letter-spacing:.3em;background:linear-gradient(90deg,#9ff7ff,#fff,#19e6ff,#9ff7ff);background-size:250%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 5s linear infinite;filter:drop-shadow(0 0 8px rgba(25,230,255,.7))}
+@keyframes sh{to{background-position:-250% 0}}
+#top i{font:500 9px var(--d);letter-spacing:.16em;color:var(--dim);font-style:normal;text-align:right;line-height:1.5}
+#gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.g{text-align:center;font:500 9px var(--d);letter-spacing:.14em;color:var(--dim)}
+.g svg{width:100%;max-width:70px;display:block;margin:0 auto -2px}
+.gt{fill:none;stroke:rgba(25,230,255,.16);stroke-width:7}.gv{fill:none;stroke:var(--cy);stroke-width:7;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50px 50px;filter:drop-shadow(0 0 4px var(--cy));transition:stroke-dasharray .8s}
+.gn{font:800 19px var(--d);fill:var(--txt);text-anchor:middle;dominant-baseline:central}
+#stage{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+#reactor{height:100%;max-height:380px;aspect-ratio:1;overflow:visible;filter:drop-shadow(0 0 26px rgba(25,230,255,.45)) drop-shadow(0 0 60px rgba(25,230,255,.18));transition:filter .4s}
+.r{fill:none;stroke:var(--cy)}.o{transform-origin:200px 200px;animation:o var(--t,40s) linear infinite}.v{animation-direction:reverse}@keyframes o{to{transform:rotate(360deg)}}
+.core{transform-origin:200px 200px;animation:cp 3s ease-in-out infinite}@keyframes cp{50%{transform:scale(1.14);opacity:.85}}
+body[data-s=listen] #reactor{filter:drop-shadow(0 0 34px rgba(60,255,154,.8))}body[data-s=listen] .core{animation-duration:.8s}
+body[data-s=think] #reactor{filter:drop-shadow(0 0 34px rgba(255,179,71,.8))}body[data-s=think] .o{--t:6s}
+body[data-s=speak] .core{animation-duration:.4s}
+.tele{position:absolute;top:8%;font:500 9px/1.9 var(--d);letter-spacing:.1em;color:var(--dim)}#tl{left:0}#tr{right:0;text-align:right}.tele b{color:var(--cy2);font-weight:500}
+#st{font:700 11px var(--d);letter-spacing:.34em;text-align:center;color:var(--cy2);text-transform:uppercase;min-height:14px}
+#log{height:clamp(96px,22dvh,190px);overflow-y:auto;border:1px solid rgba(159,247,255,.4);background:linear-gradient(160deg,var(--glass),rgba(2,16,24,.75));backdrop-filter:blur(10px);padding:8px 10px;box-shadow:0 0 22px rgba(25,230,255,.12),inset 0 0 24px rgba(25,230,255,.06);scrollbar-width:thin;scrollbar-color:#0f6f84 transparent}
+#log div{margin:4px 0;line-height:1.3;animation:in .3s}.me{color:var(--amb)}.ai{color:var(--txt)}.er{color:var(--red)}@keyframes in{from{opacity:0;transform:translateY(6px)}}
+#log a.cardl{display:block;margin:6px 0;padding:11px;text-align:center;font:800 12px var(--d);letter-spacing:.2em;color:#001018;background:var(--grn);text-decoration:none;box-shadow:0 0 20px rgba(60,255,154,.6)}
+#apps{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+#apps a,#row button,#mic{font:700 9px var(--d);letter-spacing:.06em;color:var(--cy2);text-decoration:none;text-align:center;padding:9px 0;background:rgba(25,230,255,.07);border:0;box-shadow:inset 0 0 0 1px rgba(25,230,255,.35);backdrop-filter:blur(8px);transition:.15s}
+#apps a:active,#row button:active{transform:scale(.93);box-shadow:inset 0 0 0 1.5px var(--cy),0 0 18px rgba(25,230,255,.6)}
+#row{display:flex;gap:6px}#txt{flex:1;min-width:0;padding:11px;font:600 15px var(--b);color:var(--txt);background:rgba(2,18,27,.8);border:0;box-shadow:inset 0 0 0 1px rgba(25,230,255,.4)}#txt:focus{outline:none;box-shadow:inset 0 0 0 1.5px var(--cy),0 0 16px rgba(25,230,255,.4)}
+#row button{padding:0 14px;font-size:11px}
+#mic{width:100%;padding:15px;font:800 13px var(--d);letter-spacing:.34em;background:linear-gradient(180deg,rgba(25,230,255,.38),rgba(25,230,255,.08));animation:pu 2.6s ease-in-out infinite}
+@keyframes pu{50%{box-shadow:inset 0 0 0 1.5px var(--cy),0 0 26px rgba(25,230,255,.55)}}
+#boot{position:fixed;inset:0;z-index:9;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:700 12px var(--d);letter-spacing:.3em;color:var(--cy);transition:opacity .8s}
+#boot i{width:60%;height:3px;background:rgba(25,230,255,.2);position:relative;overflow:hidden}#boot i::after{content:"";position:absolute;inset:0;background:var(--cy);box-shadow:0 0 14px var(--cy);animation:ld 1.6s ease-out forwards}@keyframes ld{from{transform:translateX(-100%)}}
+</style></head><body data-s="idle">
+<canvas id="fx"></canvas><i class="cn c1"></i><i class="cn c2"></i><i class="cn c3"></i><i class="cn c4"></i>
+<div id="boot"><div>J.A.R.V.I.S. ONLINE</div><i></i><div id="bt" style="font-size:9px;color:var(--dim)">LOADING CORE MODULES</div></div>
+<div id="app">
+<div id="top"><b>J.A.R.V.I.S.</b><i>STARK INDUSTRIES<br>MARK XLIII // <span id="clk">--:--:--</span></i></div>
+<div id="gauges"></div>
+<div id="stage"><div class="tele" id="tl"></div><svg id="reactor" viewBox="0 0 400 400" aria-label="Jarvis core"><defs><radialGradient id="cg"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#9ff7ff"/><stop offset=".7" stop-color="#19e6ff" stop-opacity=".5"/><stop offset="1" stop-color="#19e6ff" stop-opacity="0"/></radialGradient><radialGradient id="sw"><stop offset="0" stop-color="#19e6ff" stop-opacity="0"/><stop offset="1" stop-color="#19e6ff" stop-opacity=".35"/></radialGradient></defs>
+<circle class="r" cx="200" cy="200" r="192" stroke-width="2" opacity=".8"/><circle class="r" cx="200" cy="200" r="185" stroke-width="8" stroke-dasharray="1.2 5.8" opacity=".8"/>
+<g class="o" style="--t:70s"><circle class="r" cx="200" cy="200" r="168" stroke-width="16" stroke-dasharray="2 9" opacity=".55"/></g>
+<g class="o v" style="--t:46s"><circle class="r" cx="200" cy="200" r="156" stroke-width="7" stroke-dasharray="150 20 60 20 200 20 90 20"/></g>
+<g class="o" style="--t:28s"><circle class="r" cx="200" cy="200" r="141" stroke="#ff3d4d" stroke-width="5" stroke-dasharray="95 800"/></g><circle class="r" cx="200" cy="200" r="141" stroke-width="1.5" opacity=".5"/>
+<g class="o v" style="--t:22s"><circle class="r" cx="200" cy="200" r="118" stroke-width="3" stroke-dasharray="10 6" opacity=".8"/></g>
+<g class="o v" style="--t:18s"><circle class="r" cx="200" cy="200" r="98" stroke="#0aa7c4" stroke-width="14" stroke-dasharray="70 12"/></g>
+<g class="o" style="--t:34s"><circle class="r" cx="200" cy="200" r="76" stroke-width="2"/><path class="r" d="M200 112V140M287.6 251L263 237M112.4 251L137 237" stroke-width="6"/></g>
+<g class="o" style="--t:5s"><path d="M200 200L200 14A186 186 0 0 1 332 68Z" fill="url(#sw)"/><path class="r" d="M200 200L200 14" stroke-width="1.5"/></g>
+<g class="core"><circle cx="200" cy="200" r="60" fill="url(#cg)"/></g><circle class="r" cx="200" cy="200" r="32" stroke-width="2" fill="#02121b"/><polygon class="r" points="200,178 221,214 179,214" stroke-width="2"/><circle cx="200" cy="203" r="8" fill="#eaffff"/>
+<g class="o v" style="--t:25s"><circle cx="200" cy="12" r="3.5" fill="#3cff9a"/><circle cx="200" cy="388" r="2.5" fill="#19e6ff"/></g></svg><div class="tele" id="tr"></div></div>
+<div id="st">Standing by</div>
+<div id="log" aria-live="polite"></div>
+<nav id="apps"><a href="https://wa.me/" target="_blank" rel="noopener">WHATSAPP</a><a href="https://www.youtube.com" target="_blank" rel="noopener">YOUTUBE</a><a href="https://maps.google.com" target="_blank" rel="noopener">MAPS</a><a href="https://mail.google.com" target="_blank" rel="noopener">GMAIL</a><a href="https://www.instagram.com" target="_blank" rel="noopener">INSTA</a><a href="https://open.spotify.com" target="_blank" rel="noopener">SPOTIFY</a></nav>
+<div id="row"><input id="txt" placeholder="Type to Jarvis" autocomplete="off"><button id="send">SEND</button></div>
+<button id="mic">TAP TO SPEAK</button>
+</div>
+<script>
+(function(){
+const $=s=>document.querySelector(s),P=n=>String(n).padStart(2,"0"),S=(k,v)=>{try{return v===undefined?JSON.parse(localStorage.getItem(k)||"null"):localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+const log=(c,t)=>{const d=document.createElement("div");d.className=c;d.textContent=(c==="me"?"You: ":c==="ai"?"Jarvis: ":"")+t;$("#log").appendChild(d);$("#log").scrollTop=1e9;return d};
+const st=(s,t)=>{document.body.dataset.s=s;$("#st").textContent=t};
+/* gauges */
+const G=[["gd","DATE"],["gt","TIME"],["gb","POWER"],["gn","LINK"]];
+$("#gauges").innerHTML=G.map(g=>'<div class="g"><svg viewBox="0 0 100 100"><circle class="gt" cx="50" cy="50" r="40" pathLength="100"/><circle class="gv" id="'+g[0]+'v" cx="50" cy="50" r="40" pathLength="100" stroke-dasharray="0 100"/><text class="gn" id="'+g[0]+'" x="50" y="50">--</text></svg>'+g[1]+'</div>').join("");
+const sg=(id,t,p)=>{$("#"+id).textContent=t;$("#"+id+"v").setAttribute("stroke-dasharray",Math.max(0,Math.min(100,p))+" 100")};
+let batt=null;try{navigator.getBattery&&navigator.getBattery().then(b=>batt=b)}catch(e){}
+function tick(){const n=new Date(),dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();
+ $("#clk").textContent=P(n.getHours())+":"+P(n.getMinutes())+":"+P(n.getSeconds());
+ sg("gd",P(n.getDate()),n.getDate()/dim*100);sg("gt",P(n.getHours())+":"+P(n.getMinutes()),(n.getHours()*60+n.getMinutes())/14.4);
+ sg("gb",batt?Math.round(batt.level*100)+"%":"--",batt?batt.level*100:0);const c=navigator.connection;sg("gn",navigator.onLine?(c&&c.effectiveType?c.effectiveType.toUpperCase():"ON"):"OFF",navigator.onLine?(c&&c.downlink?Math.min(100,c.downlink*10):90):0);
+ $("#tl").innerHTML="DAY <b>"+n.toLocaleDateString("en-IN",{weekday:"short"}).toUpperCase()+"</b><br>MON <b>"+n.toLocaleDateString("en-IN",{month:"short"}).toUpperCase()+"</b><br>YR <b>"+n.getFullYear()+"</b>";
+ $("#tr").innerHTML="CPU <b>"+(navigator.hardwareConcurrency||"--")+"</b><br>LANG <b>"+(navigator.language||"--").toUpperCase()+"</b><br>UP <b>"+Math.floor(performance.now()/1000)+"s</b>"}
+tick();setInterval(tick,1000);
+/* background particles */
+const cv=$("#fx"),cx=cv.getContext("2d");let W,H,pts=[];function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;pts=Array.from({length:46},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3}))}rs();addEventListener("resize",rs);
+(function f(){cx.clearRect(0,0,W,H);cx.strokeStyle="rgba(25,230,255,.07)";for(let x=0;x<W;x+=28){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke()}for(let y=0;y<H;y+=28){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+ pts.forEach((p,i)=>{p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy+H)%H;cx.fillStyle="rgba(159,247,255,.7)";cx.fillRect(p.x,p.y,1.6,1.6);for(let j=i+1;j<pts.length;j++){const q=pts[j],d=Math.hypot(p.x-q.x,p.y-q.y);if(d<90){cx.strokeStyle="rgba(25,230,255,"+(.18*(1-d/90))+")";cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke()}}});requestAnimationFrame(f)})();
+/* voice */
+let voice=null;function pv(){const v=speechSynthesis.getVoices();voice=v.find(x=>/en-GB/i.test(x.lang)&&/male|daniel|google uk english male/i.test(x.name))||v.find(x=>/en-GB/i.test(x.lang))||v.find(x=>/en-IN/i.test(x.lang))||v[0]||null}
+try{pv();speechSynthesis.onvoiceschanged=pv}catch(e){}
+function say(t){return new Promise(r=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,""));if(voice){u.voice=voice;u.lang=voice.lang}u.rate=1;u.pitch=.85;u.onend=u.onerror=()=>r();st("speak","Speaking");speechSynthesis.speak(u)}catch(e){r()}})}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,on=false;
+function listen(){if(!SR){log("er","Voice input is not supported here, sir. Please type.");return}
+ rec=new SR();rec.lang="en-IN";rec.interimResults=false;rec.onstart=()=>st("listen","Listening");
+ rec.onresult=e=>{const t=e.results[0][0].transcript;handle(t)};
+ rec.onerror=e=>{on=false;$("#mic").textContent="TAP TO SPEAK";st("idle","Standing by");if(/not-allowed|service/.test(e.error))log("er","Microphone is blocked in this view, sir. Open the page in Chrome or type instead.")};
+ rec.onend=()=>{if(on&&!busy)try{rec.start()}catch(e){}};try{rec.start()}catch(e){}}
+$("#mic").onclick=()=>{if(on){on=false;try{rec.abort();speechSynthesis.cancel()}catch(e){}$("#mic").textContent="TAP TO SPEAK";st("idle","Standing by")}else{on=true;$("#mic").textContent="STOP LISTENING";listen()}};
+/* skills: date/time, apps, whatsapp, contacts, call */
+const APP={whatsapp:["WhatsApp","https://wa.me/"],youtube:["YouTube","https://www.youtube.com"],maps:["Maps","https://maps.google.com"],gmail:["Gmail","https://mail.google.com"],instagram:["Instagram","https://www.instagram.com"],insta:["Instagram","https://www.instagram.com"],spotify:["Spotify","https://open.spotify.com"],telegram:["Telegram","https://web.telegram.org"],chrome:["Google","https://www.google.com"],google:["Google","https://www.google.com"]};
+const card=(label,href)=>{const a=document.createElement("a");a.className="cardl";a.href=href;a.target="_blank";a.rel="noopener";a.textContent="TAP: "+label;$("#log").appendChild(a);$("#log").scrollTop=1e9};
+const num=s=>{let d=String(s).replace(/\D/g,"");if(d.length===10)d="91"+d;return d};
+const nowTxt=()=>{const n=new Date();return n.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+", "+n.toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"})};
+function local(t){const l=t.toLowerCase().trim();let m;
+ if(/(what('| i)?s |tell me |^)(the )?(date|day)\b|aaj.*(tarikh|date|din)|kaun sa din|today'?s date/.test(l))return"It is "+new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+", sir.";
+ if(/\b(time)\b.*(now|is it)|what('| i)?s the time|abhi.*(time|baje)|kitne baje|^time$/.test(l))return"The time is "+new Date().toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"})+", sir.";
+ if(m=l.match(/save (?:contact )?([a-z]+)[\s:,-]+(\+?[\d\s-]{10,15})/)){const c=S("c")||{};c[m[1]]=num(m[2]);S("c",c);return"Contact "+m[1]+" saved, sir."}
+ if(m=l.match(/^(?:please )?(?:send|text|message|msg|whatsapp)\s+([a-z]+)\s+(?:that\s+|to\s+|saying\s+)?(.+)$/i)||l.match(/^([a-z]+)\s+ko\s+(.+?)\s+(?:bhejo|bhej do|message karo)$/)){const c=S("c")||{},n=c[m[1].toLowerCase()];
+  if(!n)return"I have no number for "+m[1]+", sir. Say: save contact "+m[1]+" 9876543210.";card("SEND WHATSAPP TO "+m[1].toUpperCase(),"https://wa.me/"+n+"?text="+encodeURIComponent(m[2]));return"Message to "+m[1]+" is ready, sir. Tap the green button to send."}
+ if(/\b(call me|phone me|mujhe call)\b/.test(l))return"Phone calls need a server, sir, which this hosted page does not have. I can still message you through WhatsApp.";
+ if(m=l.match(/^(?:open|launch|start|kholo|khol)\s+(?:the\s+)?([a-z ]+?)(?:\s+(?:kholo|khol|please))?$/)){const a=APP[m[1].trim()];if(a){card("OPEN "+a[0].toUpperCase(),a[1]);try{window.open(a[1],"_blank")}catch(e){}return"Opening "+a[0]+", sir."}}
+ return null}
+/* brain */
+let busy=false,hist=[],KEY=S("gk")||"",MODEL=S("gm")||"";
+async function pickModel(){if(MODEL)return MODEL;const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",{headers:{"x-goog-api-key":KEY}});const j=await r.json();if(!r.ok)throw{status:r.status,message:(j.error&&j.error.message)||"models"};
+ const n=(j.models||[]).map(m=>m.name.replace("models/","")).filter(n=>/^gemini-[\d.]+-flash$/.test(n)).sort((x,y)=>parseFloat(y.slice(7))-parseFloat(x.slice(7)));MODEL=n[0]||"gemini-2.0-flash";S("gm",MODEL);return MODEL}
+async function brain(t){if(!KEY){const k=prompt("Paste your free Gemini API key (aistudio.google.com/apikey). It stays on this phone only.");if(!k)throw{message:"No key given"};KEY=k.trim();S("gk",KEY)}
+ const sys="You are J.A.R.V.I.S., Tony Stark's calm, witty British AI butler, talking to your owner whom you call sir. Reply in the language the user speaks (Hinglish is fine), in at most 2 short sentences, no markdown. Current real date and time (trust it over your memory and over any search result): "+nowTxt()+" IST. Never guess dates. You cannot open apps or send messages yourself.";
+ const msgs=hist.slice(-6).map(h=>({role:h[0]==="User"?"user":"model",parts:[{text:h[1]}]}));msgs.push({role:"user",parts:[{text:t}]});
+ const el=log("ai","…");let m;try{m=await pickModel()}catch(e){el.remove();throw e}
+ const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":KEY},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:msgs,generationConfig:{maxOutputTokens:220,temperature:.7}})});
+ const j=await r.json();if(!r.ok){el.remove();if([400,401,403].includes(r.status)&&/key/i.test((j.error&&j.error.message)||"")){KEY="";S("gk","")}throw{message:(j.error&&j.error.message||"HTTP "+r.status).slice(0,140)}}
+ const x=((j.candidates||[])[0]||{}).content;const txt=x&&x.parts?x.parts.map(p=>p.text||"").join("").trim():"";if(!txt){el.remove();throw{message:"Empty reply"}}el.textContent="Jarvis: "+txt;return txt}
+async function handle(t){if(busy||!t.trim())return;busy=true;try{rec&&rec.abort()}catch(e){}log("me",t);st("think","Processing");let a=local(t);
+ try{if(a===null)a=await brain(t);else log("ai",a);hist.push(["User",t],["Jarvis",a]);await say(a)}catch(e){log("er","My brain link failed: "+((e&&e.message)||e||"unavailable")+".")}
+ busy=false;st("idle","Standing by");if(on)listen()}
+$("#send").onclick=()=>{const v=$("#txt").value;$("#txt").value="";handle(v)};$("#txt").onkeydown=e=>{if(e.key==="Enter")$("#send").click()};
+/* boot */
+const h=new Date().getHours(),g=h<5?"Good night":h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+setTimeout(()=>{$("#bt").textContent="CORE ONLINE";setTimeout(()=>{$("#boot").style.opacity=0;setTimeout(()=>$("#boot").remove(),800);log("ai",g+", sir. Today is "+new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+". All systems are online.")},600)},1500);
+})();
+</script></body></html>
